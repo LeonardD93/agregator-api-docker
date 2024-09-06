@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,13 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+Route::post('/password/email', [AuthController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::post('/password/reset', [AuthController::class, 'resetPassword'])->name('password.update');
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
