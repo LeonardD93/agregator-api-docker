@@ -66,18 +66,35 @@ services:
       - "9200:9200"
     networks:
       - laravel
-      
-  phpmyadmin: # used only in development for testing, be sure to don't use it in production
+
+   phpmyadmin: # used only in development for testing, be sure to don't use it in production
     image: phpmyadmin/phpmyadmin
     container_name: laravel_phpmyadmin
     environment:
       PMA_ARBITRARY: 1
       MYSQL_ROOT_PASSWORD: root
-      PMA_HOST: mysql # The name of your MySQL service in docker-compose
+      PMA_HOST: mysql
     ports:
-      - "8081:80" # Expose phpMyAdmin on port 8081
+      - "8081:80"
     depends_on:
       - mysql
+    networks:
+      - laravel
+
+  # Scheduler service
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile  # Use the same Dockerfile as 'app'
+    container_name: laravel_scheduler
+    restart: always
+    working_dir: /var/www/
+    volumes:
+      - .:/var/www/
+    depends_on:
+      - app
+    entrypoint: |
+      sh -c "while [ true ]; do php /var/www/agregator-api/artisan schedule:run --verbose --no-interaction; sleep 60; done"
     networks:
       - laravel
 
@@ -87,4 +104,3 @@ networks:
 volumes:
   dbdata:
   esdata:
-

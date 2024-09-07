@@ -198,4 +198,101 @@ class ArticleService
             throw new \Exception('Failed to retrieve article from Elasticsearch: ' . $e->getMessage());
         }
     }
+
+    // Method to store articles in the database and index them in Elasticsearch
+    public function storeArticles(array $articles, array $mapping)
+    {
+        foreach ($articles as $articleData) {
+
+            $mappedData = $this->mapArticleFields($articleData, $mapping);
+            
+            // Check for valid data: Skip the article if the URL, title, or published_at are missing or incorrect
+            if (empty($mappedData['url']) || empty($mappedData['title']) || !$this->isValidDate($mappedData['published_at'])) {
+                // Optionally, log invalid articles for debugging purposes
+                \Log::warning('Invalid article data', ['article_data' => $mappedData]);
+                continue; // Skip this article
+            }
+
+            // Update or create the article in the database, ensuring uniqueness based on the URL
+            $article = Article::updateOrCreate(
+                ['url' => $mappedData['url']],  // Ensure URL uniqueness
+                [
+                    'title' => $mappedData['title'],
+                    'author' => $mappedData['author'] ?? '',
+                    'content' => $mappedData['content'] ?? 'No content available',
+                    'category' => $mappedData['category'] ?? 'General',
+                    'published_at' => isset($mappedData['published_at']) 
+                        ? Carbon::parse($mappedData['published_at'])->toDateTimeString() 
+                        : Carbon::now()->toDateTimeString(),
+                    'url' => $mappedData['url'],
+                    'source_name' => $mappedData['source_name'],
+                ]
+            );
+
+            // Index the article into Elasticsearch
+            $this->indexArticle($article);
+        }
+    }
+
+    // Map the article data to the database structure based on the provided mapping
+    protected function mapArticleFields(array $articleData, array $mapping): array
+    {
+        $mappedData = [];
+
+        foreach ($mapping as $dbField => $apiField) {
+
+            if(is_callable($apiField) && $apiField!='url' ) { // special case url is also callable
+                $value = call_user_func($apiField);
+                $mappedData[$dbField] = $value;
+                continue;
+            }
+
+            if ($apiField === null) {
+                $mappedData[$dbField] = null;
+                continue;
+            }
+            
+            $value = $this->getNestedValue($articleData, $apiField);
+            $mappedData[$dbField] = $value;
+        }
+
+        return $mappedData;
+    }
+
+    // Helper function to retrieve nested values from the API response
+    protected function getNestedValue(array $data, string $field)
+    {
+        if (strpos($field, '.') === false) {
+            return $data[$field] ?? null;
+        }
+
+        $fields = explode('.', $field);
+        foreach ($fields as $key) {
+            if (!isset($data[$key])) {
+                return null;
+            }
+            $data = $data[$key];
+        }
+
+        return $data;
+    }
+
+    // Helper function to check if the published_at value is a valid date
+    protected function isValidDate($date)
+    {
+        if (!$date) {
+            return false;
+        }
+
+        try {
+            $carbonDate = Carbon::parse($date);
+            // Optionally, exclude specific invalid dates (e.g., 1970-01-01)
+            if ($carbonDate->year < 1971) {
+                return false;
+            }
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
 }
