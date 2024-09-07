@@ -84,7 +84,7 @@ http://localhost:8080
 
 If everything is set up correctly, you should see the default Laravel welcome page.
 
-<!-- ## Swagger API Documentation
+## Swagger API Documentation
 
 This project includes Swagger for API documentation. You can access the Swagger UI by visiting:
 
@@ -92,9 +92,10 @@ http://localhost:8080/api/documentation
 
 To regenerate the Swagger documentation after changes:
 ```
-docker-compose exec app php artisan l5-swagger:generate 
+docker-compose exec -w /var/www/agregator-api app php artisan l5-swagger:generate
+
 ```
--->
+
 
 ## Additional Commands
 
@@ -102,8 +103,32 @@ docker-compose exec app php artisan l5-swagger:generate
 
 To run the tests defined in the project:
 ```
-docker-compose exec app php artisan test
+docker-compose exec -w /var/www/agregator-api app php artisan test 
+
+#or first open the container and run the tests
+
+docker-compose exec app bash
+cd agregator-api/
+php artisan test
+
 ```
+
+To seed the database with data from the different apis you can run the following command:
+```
+docker-compose exec -w /var/www/agregator-api app php artisan app:fetch-news-articles
+
+#or if you ar already in the container 
+php artisan app:fetch-news-articles
+
+```
+
+This project includes also elasticsearch if there are some problems with indexing you can reindex with the following command in the container
+
+```
+app:reindex-elasticsearch-article
+
+```
+you also can see the articles indexed by elasticsearch unsing the following link http://localhost:9200/_search?size=10000
 
 ### Troubleshooting
 
