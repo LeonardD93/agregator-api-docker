@@ -93,7 +93,6 @@ http://localhost:8080/api/documentation
 To regenerate the Swagger documentation after changes:
 ```
 docker-compose exec -w /var/www/agregator-api app php artisan l5-swagger:generate
-
 ```
 
 
@@ -105,7 +104,7 @@ To run the tests defined in the project:
 ```
 docker-compose exec -w /var/www/agregator-api app php artisan test 
 
-#or first open the container and run the tests
+# or first open the container and run the tests
 
 docker-compose exec app bash
 cd agregator-api/
@@ -117,7 +116,7 @@ To seed the database with data from the different apis you can run the following
 ```
 docker-compose exec -w /var/www/agregator-api app php artisan app:fetch-news-articles
 
-#or if you ar already in the container 
+# or if you ar already in the container 
 php artisan app:fetch-news-articles
 
 ```
