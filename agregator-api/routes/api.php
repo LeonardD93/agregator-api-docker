@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\UserPreferenceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +26,12 @@ Route::post('/password/reset', [AuthController::class, 'resetPassword'])->name('
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/articles/search', [ArticleController::class, 'search']);
+    Route::get('/articles/personalized', [ArticleController::class, 'personalizedNews']);
     Route::get('/articles/{article}', [ArticleController::class, 'show']);
+
+
+    Route::post('/user/preferences', [UserPreferenceController::class, 'setPreferences']);
+    Route::get('/user/preferences', [UserPreferenceController::class, 'getPreferences']);
 
     Route::get('/user', function (Request $request) {
         return $request->user();

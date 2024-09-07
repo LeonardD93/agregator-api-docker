@@ -114,8 +114,8 @@ class ArticleService
                 'filter' => []
             ]
         ];
-
-        // Filter keyword
+    
+        // Filter by keyword (optional)
         if (!empty($filters['keyword'])) {
             $query['bool']['must'][] = [
                 'multi_match' => [
@@ -125,22 +125,29 @@ class ArticleService
                 ]
             ];
         }
-
-        // Filter category
+    
+        // Filter by multiple categories (optional)
         if (!empty($filters['category'])) {
             $query['bool']['filter'][] = [
-                'term' => ['category' => $filters['category']]
+                'terms' => ['category' => $filters['category']]
             ];
         }
-
-        // Filter source_name
+    
+        // Filter by multiple sources (optional)
         if (!empty($filters['source_name'])) {
             $query['bool']['filter'][] = [
-                'term' => ['source_name' => $filters['source_name']]
+                'terms' => ['source_name' => $filters['source_name']]
             ];
         }
-
-        // filter date range
+    
+        // Filter by multiple authors (optional)
+        if (!empty($filters['author'])) {
+            $query['bool']['filter'][] = [
+                'terms' => ['author' => $filters['author']]
+            ];
+        }
+    
+        // Filter by date range (optional)
         if (!empty($filters['start_date']) || !empty($filters['end_date'])) {
             $dateRange = [];
             if (!empty($filters['start_date'])) {
@@ -149,14 +156,15 @@ class ArticleService
             if (!empty($filters['end_date'])) {
                 $dateRange['lte'] = Carbon::parse($filters['end_date'])->toDateString();
             }
-
+    
             $query['bool']['filter'][] = [
                 'range' => [
                     'published_at' => $dateRange
                 ]
             ];
         }
-
+    
+        // Build the Elasticsearch search query
         $params = [
             'index' => 'articles',
             'body'  => [
@@ -168,7 +176,7 @@ class ArticleService
                 ]
             ]
         ];
-
+    
         try {
             $response = $this->client->search($params);
             return $response;
@@ -176,7 +184,7 @@ class ArticleService
             throw new \Exception('Failed to search articles: ' . $e->getMessage());
         }
     }
-
+    
     public function getArticleByIdFromElasticsearch($articleId)
     {
         $params = [

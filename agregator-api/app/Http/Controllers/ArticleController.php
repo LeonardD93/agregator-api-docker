@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Services\ArticleService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ArticleController extends Controller
 {
@@ -167,6 +168,62 @@ class ArticleController extends Controller
                 'message' => 'Failed to retrieve article: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/articles/personalized",
+     *     summary="Get personalized news feed",
+     *     description="Retrieve articles based on user preferences for news sources, categories, and authors, ordered by published date.",
+     *     tags={"User Preferences", "Articles"},
+     *     security={{"BearerAuth": {}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="title", type="string"),
+     *                     @OA\Property(property="content", type="string"),
+     *                     @OA\Property(property="published_at", type="string", format="date-time"),
+     *                     @OA\Property(property="source", type="string"),
+     *                     @OA\Property(property="category", type="string"),
+     *                     @OA\Property(property="author", type="string")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized"
+     *     )
+     * )
+     */
+    public function personalizedNews()
+    {
+        $user = Auth::user();
+        $preferences = $user->preferences;
+
+        // Define default pagination settings
+        $page = 1;
+        $perPage = 20; 
+        $from = ($page - 1) * $perPage;
+
+        // Create filters based on user preferences
+        $filters = [
+            'category'   => $preferences->preferred_categories ?? null,
+            'source_name'=> $preferences->preferred_sources ?? null,
+            'author'     => $preferences->preferred_authors ?? null,
+        ];
+
+        // Call the search service with the filters
+        $response = $this->articleService->searchArticlesWithFilters($filters, $from, $perPage);
+
+        return response()->json($response->asArray());
     }
 }
 
