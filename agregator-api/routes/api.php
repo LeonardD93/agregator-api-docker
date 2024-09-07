@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ArticleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +23,11 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 Route::post('/password/email', [AuthController::class, 'sendResetLinkEmail'])->name('password.email');
 Route::post('/password/reset', [AuthController::class, 'resetPassword'])->name('password.update');
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/articles/search', [ArticleController::class, 'search']);
+    Route::get('/articles/{article}', [ArticleController::class, 'show']);
+
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
 });

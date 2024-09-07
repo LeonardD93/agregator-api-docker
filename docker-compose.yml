@@ -49,6 +49,23 @@ services:
       - "8025:8025"
     networks:
       - laravel
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.2
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - laravel
       
   phpmyadmin: # used only in development for testing, be sure to don't use it in production
     image: phpmyadmin/phpmyadmin
