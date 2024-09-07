@@ -45,6 +45,10 @@ This will start the following services:
 - **PHP-FPM**: Runs Laravel.
 - **Nginx**: Serves the Laravel application.
 - **MySQL**: Database service.
+- **Mailhog** mailhog for sending mail for recover password
+- **Scheduler**: Scheduler 
+- **Elasticsearch**: Elasticsearch
+- **Phpmyadmin**: Phpmyadmin service (neet to disable it in production)
 
 ### Step 3: Configure the Application
 
@@ -127,7 +131,16 @@ This project includes also elasticsearch if there are some problems with indexin
 app:reindex-elasticsearch-article
 
 ```
-you also can see the articles indexed by elasticsearch unsing the following link http://localhost:9200/_search?size=10000
+
+if you are using the password/email api you will recive an email, mailhog is available at the following link:
+http://localhost:8025/
+
+you also can see the articles indexed by elasticsearch unsing the following link:
+http://localhost:9200/_search?size=10000
+
+Php myadmin is available at the following link:
+http://localhost:8081/ 
+by default the credentials are the same as in .env.example file
 
 ### Troubleshooting
 
