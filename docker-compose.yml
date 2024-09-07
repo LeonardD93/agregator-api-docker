@@ -67,7 +67,7 @@ services:
     networks:
       - laravel
 
-   phpmyadmin: # used only in development for testing, be sure to don't use it in production
+  phpmyadmin: # used only in development for testing, be sure to don't use it in production
     image: phpmyadmin/phpmyadmin
     container_name: laravel_phpmyadmin
     environment:
