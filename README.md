@@ -115,8 +115,9 @@ cd agregator-api/
 php artisan test
 
 ```
+By default the scheduler is running and seed the database with the articles from the diferent apis
+if is not available you can seed the database forcing the command with the following command:
 
-To seed the database with data from the different apis you can run the following command:
 ```
 docker-compose exec -w /var/www/agregator-api app php artisan app:fetch-news-articles
 
