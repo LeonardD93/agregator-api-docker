@@ -19,9 +19,9 @@ class UserPreferenceController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             type="object",
-     *             @OA\Property(property="preferred_sources", type="array", @OA\Items(type="string")),
-     *             @OA\Property(property="preferred_categories", type="array", @OA\Items(type="string")),
-     *             @OA\Property(property="preferred_authors", type="array", @OA\Items(type="string")),
+     *             @OA\Property(property="preferred_sources", example={"The Guardian"}, type="array", @OA\Items(type="string")),
+     *             @OA\Property(property="preferred_categories", example={"Sport"}, type="array", @OA\Items(type="string")),
+     *             @OA\Property(property="preferred_authors", example={}, type="array", @OA\Items(type="string")),
      *         )
      *     ),
      *     @OA\Response(
