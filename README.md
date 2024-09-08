@@ -4,7 +4,7 @@ This project is a **News Aggregator API** built with Laravel, Docker, and Swagge
 
 ## Prerequisites
 
-Make sure you have the following installed on your system:
+Ensure you have the following tools installed:
 
 - **Docker**
 - **Docker Compose**
@@ -13,7 +13,7 @@ Make sure you have the following installed on your system:
 
 ### Step 1: Clone the Repository
 
-First, clone the repository to your local machine using one of the following commands:
+Clone the repository to your local machine:
 
 ```bash
 
@@ -34,30 +34,31 @@ cd agregator-api-docker
 
 ### Step 2: Build and Start the Docker Containers
 
-Use Docker Compose to build and start the application containers:
+Build and run the Docker containers:
 
 ```
+docker-compose build
 docker-compose up -d
 ```
 
-This will start the following services:
+Services started by these commands:
 
 - **PHP-FPM**: Runs Laravel.
 - **Nginx**: Serves the Laravel application.
 - **MySQL**: Database service.
-- **Mailhog** mailhog for sending mail for recover password
-- **Scheduler**: Scheduler 
-- **Elasticsearch**: Elasticsearch
-- **Phpmyadmin**: Phpmyadmin service (neet to disable it in production)
+- **Mailhog** For email testing.
+- **Scheduler**:  Handles scheduled tasks.
+- **Elasticsearch**: Search engine service.
+- **PhpMyAdmin**: Web interface for MySQL (disable in production).
 
 ### Step 3: Configure the Application
 
-1. **Create the `.env` file** by copying the example `.env.example`:
+1. **Copy the`.env` file** :
 ```
    cp agregator-api/.env.example agregator-api/.env
 ```
 
-2. **Enter the Docker container as the root user**:
+2. **Enter the Docker container**:
 ```
    docker-compose exec --user root app bash
 ```
@@ -67,7 +68,7 @@ This will start the following services:
    cd agregator-api
 ```
 
-4. **Generate the application key and install dependencies**:
+4. **Install dependencies and generate an application key**:
 ```
    composer install
    php artisan key:generate 
@@ -75,82 +76,100 @@ This will start the following services:
 
 ### Step 4: Set File Permissions
 
-Open a new terminal and adjust the permissions for the `agregator-api` directory:
+n a new terminal, set proper permissions for the `agregator-api` directory:
 ```
 sudo chown -R www-data:www-data agregator-api/
 ```
 
 ### Step 5: Access the Application
 
-Once the containers are running and the permissions are set, you can access the Laravel application in your browser:
+Visit the application in your browser at:
 
+```
 http://localhost:8080
+```
 
-If everything is set up correctly, you should see the default Laravel welcome page.
+If everything is set up correctly, the default Laravel welcome page should appear.
 
-## Swagger API Documentation
+## API Documentation (Swagger)
 
-This project includes Swagger for API documentation. You can access the Swagger UI by visiting:
+To generate and view Swagger documentation:
 
-http://localhost:8080/api/documentation
-
-To regenerate the Swagger documentation after changes:
+### 1. Generate Swagger documentation:
 ```
 docker-compose exec -w /var/www/agregator-api app php artisan l5-swagger:generate
 ```
+
+### 2. Access the Swagger UI:
+```
+http://localhost:8080/api/documentation
+```
+
+
+## External API Tokens
+
+Add external API tokens to the '.env' file:
+
+- [News API](https://newsapi.org/docs/get-started)
+- [The Guardian Open Platform](https://open-platform.theguardian.com/access/)
+- [New York Times API](https://developer.nytimes.com/get-started)
 
 
 ## Additional Commands
 
 ### Running Tests
 
-To run the tests defined in the project:
+To run the tests:
 ```
 docker-compose exec -w /var/www/agregator-api app php artisan test 
+```
 
-# or first open the container and run the tests
+Alternatively, inside the container:
 
+```
 docker-compose exec app bash
 cd agregator-api/
 php artisan test
-
 ```
-By default the scheduler is running and seed the database with the articles from the diferent apis
-if is not available you can seed the database forcing the command with the following command:
+### Seeding the Database
+
+If the database hasn't been seeded automatically, or for re-seeding:
 
 ```
 docker-compose exec -w /var/www/agregator-api app php artisan app:fetch-news-articles
-
-# or if you ar already in the container 
-php artisan app:fetch-news-articles
-
 ```
 
-This project includes also elasticsearch if there are some problems with indexing you can reindex with the following command in the container
+### Elasticsearch Reindexing
+
+If Elasticsearch indexing fails, reindex articles with:
 
 ```
-app:reindex-elasticsearch-article
-
+docker-compose exec -w /var/www/agregator-api app php artisan app:reindex-elasticsearch-article
 ```
 
-if you are using the password/email api you will recive an email, mailhog is available at the following link:
-http://localhost:8025/
-
-you also can see the articles indexed by elasticsearch unsing the following link:
+Check the indexed articles:
+```
 http://localhost:9200/_search?size=10000
+```
 
-Php myadmin is available at the following link:
+### Mailhog
+
+Access Mailhog at:
+```
+http://localhost:8025/
+```
+
+### PhpMyAdmin
+
+PhpMyAdmin is accessible at:
+```
 http://localhost:8081/ 
-by default the credentials are the same as in .env.example file
+```
+By default, the credentials are the same as those in the '.env.example' file
 
 ### Troubleshooting
 
-If you encounter file permission issues, you may need to reset the file permissions:
-
+If you encounter file permission issues, reset them using:
 ```
 sudo chown -R www-data:www-data agregator-api/
 ```
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
