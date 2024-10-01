@@ -76,7 +76,7 @@ Services started by these commands:
 
 ### Step 4: Set File Permissions
 
-n a new terminal, set proper permissions for the `agregator-api` directory:
+in a new terminal, set proper permissions for the `agregator-api` directory:
 ```
 sudo chown -R www-data:www-data agregator-api/
 ```
